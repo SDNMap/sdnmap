@@ -2,7 +2,7 @@
 
 Please make sure that you have Python, Scapy 2.2, installed on your Linux system since these are required to run SDNMap.
 
-## Using SDNMap
+# Using SDNMap
 
 SDNMap is a scanning tool to reconstruct the composition of OpenFlow rules in SDN networks from a source host to any destination host in a network.
 No prior knowledge of the SDN controller or network is required. 
@@ -11,7 +11,7 @@ SDNMap is an open-source software and can be used under the terms of the Creativ
 For details about the functionality of SDNMap we refer to the research paper "Adversarial Network Forensics in Software Defined Networking" (currently under review).
 
 ----------------------------------------
-## Scanning hosts with SDNMap
+# Scanning hosts with SDNMap
 
 To perform a flow rules reconstruction scan, the user has to provide the following input arguments to SDNMap:
 
