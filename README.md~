@@ -18,7 +18,7 @@ To perform a flow rules reconstruction scan, the user has to provide the followi
 - IP address prefix to scan (e.g. 10.0.0.0/24 for a range of hosts or 10.0.0.2/32 for a single host)
 - The selected scanning protocol (ICMP or TCP)
 - The network interface of the host (e.g. eth0)
-- A list of ports in [] separated by a comma (',') that should be scanned for TCP and UDP, e.g. [80,443], or an empty list [] of exact port numbers should not be scanned
+- A list of ports in [] separated by a comma (',') that should be scanned for TCP and UDP, e.g. [80,443], or an empty list [] if exact port numbers should not be scanned
 
 SDNMap has to be executed with root privileges. An example for starting SDNMap to scan the network 10.0.0.0/24 with TCP and evaluate ports 80 and 443 looks like the following:
 
