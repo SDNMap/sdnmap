@@ -32,8 +32,7 @@ In the following we show an example output of a scan performed by SDNMap:
 
 -------------------------------------------------------------
 ```
-sudo python main.py 10.0.0.2/32 TCP eth0 [80,100,250]
-
+root@sdnmaphost:~/# python main.py 10.0.0.2/32 TCP h1-eth0 [80,120]
 Scanning 10.0.0.2 / 32
 ------- ARP scan --------
 Performing ARP scan... 
@@ -42,25 +41,43 @@ Sending ARP request to 10.0.0.2
 10.0.0.2 / 00:00:00:00:00:02
 ----------------------------
 Use 10.0.0.2 / 00:00:00:00:00:02 for probing
-------- Test which TCP ports, using ports [80, 100, 250], are checked --------
+------- Test which TCP ports, using ports [80, 120], are checked --------
 Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 80 and destination port 80
 Replied!
-Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 80 and destination port 100
-No Reply!
-Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 80 and destination port 250
-No Reply!
-Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 100 and destination port 80
-No Reply!
-Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 100 and destination port 100
-No Reply!
-Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 100 and destination port 250
-No Reply!
-Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 250 and destination port 80
-No Reply!
-Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 250 and destination port 100
-No Reply!
-Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 250 and destination port 250
-No Reply!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 80 and destination port 120
+No reply received!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 120 and destination port 80
+No reply received!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with TCP source port 120 and destination port 120
+No reply received!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with spoofed IP source and TCP source port 80 and destination port 80
+Received ARP request for 10.0.0.171
+Probing 10.0.0.2 - 00:00:00:00:00:02 with spoofed IP source and TCP source port 80 and destination port 120
+No reply received!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with spoofed IP source and TCP source port 120 and destination port 80
+Received ARP request for 10.0.0.143
+Probing 10.0.0.2 - 00:00:00:00:00:02 with spoofed IP source and TCP source port 120 and destination port 120
+No reply received!
+
+-------------------------------------------
+------- Test which UDP ports, using ports [80, 120], are checked --------
+Probing 10.0.0.2 - 00:00:00:00:00:02 with UDP source port 80 and destination port 80
+Replied at port 80!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with UDP source port 80 and destination port 120
+No reply received!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with UDP source port 120 and destination port 80
+Replied at port 80!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with UDP source port 120 and destination port 120
+No reply received!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with spoofed IP source and UDP source port 80 and destination port 80
+Received ARP request for 10.0.0.86
+Probing 10.0.0.2 - 00:00:00:00:00:02 with spoofed IP source and UDP source port 80 and destination port 120
+No reply received!
+Probing 10.0.0.2 - 00:00:00:00:00:02 with spoofed IP source and UDP source port 120 and destination port 80
+Received ARP request for 10.0.0.160
+Probing 10.0.0.2 - 00:00:00:00:00:02 with spoofed IP source and UDP source port 120 and destination port 120
+No reply received!
+
 -------------------------------------------
 --- Determine enforced protocols ---
 ------- Check with TCP --------
@@ -76,14 +93,16 @@ Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10
 Host is reachable via UDP!
 -------------------------------------------
 
+
 Accepted protocols: 
 TCP
 ICMP
 UDP
 
+
+
 --- Determine if IP addresses are rewritten ---
 Sending UDP packet to port 80 at 10.0.0.2 / 00:00:00:00:00:02
-Sending UDP packet to port 100 at 10.0.0.2 / 00:00:00:00:00:02
 Received ICMP Port Unreachable message
 IP addresses are not rewritten
 
@@ -91,34 +110,42 @@ IP addresses are not rewritten
 ------- Check if SDN is reactive --------
 Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.1 - 00:00:00:00:00:01 from port 80 to port 80
 Proactive approach is assumed based on probing response times (difference factor 1 < 10)
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.56 - 00:00:00:7b:7f:5f from port 80 to port 80
-Spoof ARP cache at 10.0.0.2 from 10.0.0.56 to 00:00:00:00:00:01
+Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.195 - 00:00:00:da:69:a0 from port 80 to port 80
+Spoof ARP cache at 10.0.0.2 from 10.0.0.195 to 00:00:00:00:00:01
 Proactive approach is assumed since no response for fake addresses received
 -------------------------------------------
 ------- Check if layer 3 routing is used --------
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.56 - 00:00:00:00:00:01 from port 80 to port 80
+Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.231 - 00:00:00:00:00:01 from port 80 to port 80
 ARP req for fake IP src received!
-Spoof ARP cache at 10.0.0.2 from 10.0.0.56 to 00:00:00:00:00:01
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable from 10.0.0.56 - 00:00:00:00:00:01 from port 80 to port 80
+Spoof ARP cache at 10.0.0.2 from 10.0.0.231 to 00:00:00:00:00:01
+Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable from 10.0.0.231 - 00:00:00:00:00:01 from port 80 to port 80
 -------------------------------------------
 ------- Check if layer 2 routing is used --------
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.1 - 00:00:00:46:fe:86 from port 80 to port 80
+Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.1 - 00:00:00:1d:2f:07 from port 80 to port 80
 Response to fake src MAC received!
-Spoof ARP cache at 10.0.0.2 from 10.0.0.1 to 00:00:00:46:fe:86
+Spoof ARP cache at 10.0.0.2 from 10.0.0.1 to 00:00:00:1d:2f:07
 Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable from 10.0.0.1 - 00:00:00:00:00:01 from port 80 to port 80
 Spoof ARP cache at 10.0.0.2 from 10.0.0.1 to 00:00:00:00:00:01
 -------------------------------------------
 
 --- Determine if ingress port is enforced ---
 Not enough neighbors of 10.0.0.1 were found to check for ingress port!
+[None, '00:00:00:00:00:02', None, '10.0.0.2', 0, '10.0.0.1', '10.0.0.1', '10.0.0.2', '10.0.0.2', 0, 1, 1, '#OUT_PORT', 80, 80, 1]
+[None, '00:00:00:00:00:02', None, '10.0.0.2', 0, '10.0.0.1', '10.0.0.1', '10.0.0.2', '10.0.0.2', 0, 1, 1, '#OUT_PORT', 120, 80, 1]
 
  ------- Reconstructed rules ---------
 match=type:arp,arp_op=1 actions=FLOOD
-match=type:tcp,udp,dl_dst:00:00:00:00:00:02,tp_src:80,tp_dst:80,nw_dst:10.0.0.2 actions=output:#OUT_PORT
-match=type:tcp,udp,dl_dst:00:00:00:00:00:01,tp_src:80,tp_dst:80,nw_dst:10.0.0.1 actions=output:#OUT_PORT
+match=type:tcp,dl_dst:00:00:00:00:00:02,tp_src:80,tp_dst:80,nw_dst:10.0.0.2 actions=output:#OUT_PORT
+match=type:tcp,dl_dst:00:00:00:00:00:01,tp_src:80,tp_dst:80,nw_dst:10.0.0.1 actions=output:#OUT_PORT
+match=type:tcp,dl_dst:00:00:00:00:00:02,tp_src:120,tp_dst:80,nw_dst:10.0.0.2 actions=output:#OUT_PORT
+match=type:tcp,dl_dst:00:00:00:00:00:01,tp_src:80,tp_dst:120,nw_dst:10.0.0.1 actions=output:#OUT_PORT
+match=type:udp,dl_dst:00:00:00:00:00:02,tp_src:80,tp_dst:80,nw_dst:10.0.0.2 actions=output:#OUT_PORT
+match=type:udp,dl_dst:00:00:00:00:00:01,tp_src:80,tp_dst:80,nw_dst:10.0.0.1 actions=output:#OUT_PORT
+match=type:udp,dl_dst:00:00:00:00:00:02,tp_src:120,tp_dst:80,nw_dst:10.0.0.2 actions=output:#OUT_PORT
+match=type:udp,dl_dst:00:00:00:00:00:01,tp_src:80,tp_dst:120,nw_dst:10.0.0.1 actions=output:#OUT_PORT
 match=type:icmp,dl_dst:00:00:00:00:00:02,nw_dst:10.0.0.2 actions=output:#OUT_PORT
 match=type:icmp,dl_dst:00:00:00:00:00:01,nw_dst:10.0.0.1 actions=output:#OUT_PORT
- -------------------------------------
+
 ```
 -------------------------------------------------------------
 

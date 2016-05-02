@@ -93,12 +93,10 @@ Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10
 Host is reachable via UDP!
 -------------------------------------------
 
-
 Accepted protocols: 
 TCP
 ICMP
 UDP
-
 
 
 --- Determine if IP addresses are rewritten ---
@@ -130,8 +128,6 @@ Spoof ARP cache at 10.0.0.2 from 10.0.0.1 to 00:00:00:00:00:01
 
 --- Determine if ingress port is enforced ---
 Not enough neighbors of 10.0.0.1 were found to check for ingress port!
-[None, '00:00:00:00:00:02', None, '10.0.0.2', 0, '10.0.0.1', '10.0.0.1', '10.0.0.2', '10.0.0.2', 0, 1, 1, '#OUT_PORT', 80, 80, 1]
-[None, '00:00:00:00:00:02', None, '10.0.0.2', 0, '10.0.0.1', '10.0.0.1', '10.0.0.2', '10.0.0.2', 0, 1, 1, '#OUT_PORT', 120, 80, 1]
 
  ------- Reconstructed rules ---------
 match=type:arp,arp_op=1 actions=FLOOD
