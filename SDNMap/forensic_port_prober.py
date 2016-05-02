@@ -73,12 +73,7 @@ class forensic_port_prober(object):
                     self.mem.getARPIPReq().clear()
                 else:
                     print("No reply received!")
-
-        for p in reachableSrcPorts:
-            print("TCP SrcPort " + str(p))
-        for p in reachableDstPorts:
-            print("TCP DstPort " + str(p))
-
+                    
         return [reachableSrcPorts,reachableDstPorts]
 
     #determine ports that are enforced for UDP packets
@@ -133,11 +128,6 @@ class forensic_port_prober(object):
                     self.mem.getARPIPReq().clear()
                 else:
                     print("No reply received!")
-
-        for p in reachableSrcPorts:
-            print("UDP SrcPort " + str(p))
-        for p in reachableDstPorts:
-            print("UDP DstPort " + str(p))
 
         return [reachableSrcPorts,reachableDstPorts]
 
