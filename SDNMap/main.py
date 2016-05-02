@@ -4,6 +4,8 @@ from scapy.all import *
 from scapy.layers.inet import *
 from scapy.layers.dhcp import *
 from scapy.layers.dns import *
+from listener import listener
+from prober import prober
 from forensic_icmp_prober import forensic_icmp_prober
 from timing_prober import timing_prober
 from forensic_tcp_prober import forensic_tcp_prober
@@ -51,7 +53,7 @@ def getNetMask(iface):
 
 
 if(len(sys.argv)<5):
-    print "Not enough arguments! \nEnter network to scan (e.g. 10.0.0.0/24), scanning protocol ['ICMP,TCP'], interface (e.g. eth0) and ports [80,443] (or [] for no ports)"
+    print "Not enough arguments! \nEnter network to scan (e.g. 10.0.0.0/24), scanning protocol ['ICMP,TCP'], interface (e.g. eth0) and ports [80.443] (or [] for no ports)"
     sys.exit(0)
 
 
@@ -146,18 +148,24 @@ if scansuccess==1:
         #determine allowed ports
         ports = scan_ports.split("[")[1].split("]")[0]
         scanPorts=[]
-        reachableSrcPorts=[]
-        reachableDstPorts=[]
+        reachableSrcPorts_tcp=[]
+        reachableDstPorts_tcp=[]
+        reachableSrcPorts_udp=[]
+        reachableDstPorts_udp=[]
+
         if len(ports.split(",")) >0:
             for p in ports.split(","):
                 if p != "":
                     scanPorts.append(int(p))
             if len(scanPorts)!=0:
-                [reachableSrcPorts,reachableDstPorts]=forensic_port_prober.determinePorts(tIP,tMAC,scanPorts)
+                [reachableSrcPorts_tcp,reachableDstPorts_tcp,reachableSrcPorts_udp,reachableDstPorts_udp]=forensic_port_prober.determinePorts(tIP,tMAC,scanPorts)
 
-        if len(reachableSrcPorts)>0 and len(reachableDstPorts)>0:
-                srcPort = reachableSrcPorts[0]
-                dstPort = reachableDstPorts[0]
+        if len(reachableSrcPorts_tcp)>0 and len(reachableDstPorts_tcp)>0:
+                srcPort = reachableSrcPorts_tcp[0]
+                dstPort = reachableDstPorts_tcp[0]
+        elif len(reachableSrcPorts_udp)>0 and len(reachableDstPorts_udp)>0:
+                srcPort = reachableSrcPorts_udp[0]
+                dstPort = reachableDstPorts_udp[0]
         else:
             srcPort = random.randint(61000,65000)
             dstPort = random.randint(36000,37000)
@@ -189,7 +197,7 @@ if scansuccess==1:
             print("--- Determine which L2/L3 fields are enforced using TCP ---")
             [ip_src,ip_dst,hw_src,hw_dst,reachable,reactive]=forensic_tcp_prober.determineTCPRouting(tIP, tMAC, srcPort, dstPort)
 
-        results.append([hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP,reachableSrcPorts,reachableDstPorts])
+        results.append([hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP,reachableSrcPorts_tcp,reachableDstPorts_tcp,reachableSrcPorts_udp,reachableDstPorts_udp])
         #print([hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP])
         #else:
             #print("No implemented protocols are supported!")
@@ -209,7 +217,7 @@ if scansuccess==1:
                 break
     '''
 
-    [hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP,reachableSrcPorts,reachableDstPorts]=results[0]
+    [hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP,reachableSrcPorts_tcp,reachableDstPorts_tcp,reachableSrcPorts_udp,reachableDstPorts_udp]=results[0]
     if po_checked==0 and reactive==False and ip_src==None:
         print("")
         print("--- Determine if ingress port is enforced ---")
@@ -223,64 +231,120 @@ if scansuccess==1:
         port_check=0
 
     for res in results:
-        [hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP,reachableSrcPorts,reachableDstPorts]=res
+        [hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP,reachableSrcPorts_tcp,reachableDstPorts_tcp,reachableSrcPorts_udp,reachableDstPorts_udp]=res
 
         blockedSrcPort=[]
         blockedDstPort=[]
         for scanPort in scanPorts:
-            if scanPort not in reachableSrcPorts:
+            if scanPort not in reachableSrcPorts_tcp:
                 blockedSrcPort.append(scanPort)
-            if scanPort not in reachableDstPorts:
+            if scanPort not in reachableDstPorts_tcp:
+                blockedDstPort.append(scanPort)
+            if scanPort not in reachableSrcPorts_udp:
+                blockedSrcPort.append(scanPort)
+            if scanPort not in reachableDstPorts_udp:
                 blockedDstPort.append(scanPort)
 
         proto_ports=0
-        if (len(blockedSrcPort)!=0 or len(blockedDstPort)!=0) and (tcp==1 or udp==1):
-            for srcPort in reachableSrcPorts:
-                for dstPort in reachableDstPorts:
-                    tp_src=srcPort
-                    tp_dst=dstPort
-                    proto_ports=1
-                    if hw_src==None and hw_dst==None and ip_src==None and ip_dst==None and port_check==0:
-                        print("SDN controller has a reactive approach and does not enforce any header fields between " + str(MY_IP) + " and " + str(tIP))
-                    else:
-                        #forensic_switchport_prober.mapHosts()
-                        #print([hw_src,hw_dst,ip_src,ip_dst,port_check,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,0,tcp,udp,"#OUT_PORT",tp_src,tp_dst,reachable])
+        #if (len(blockedSrcPort)!=0 or len(blockedDstPort)!=0):
+        if tcp==1:
+            for i in range(0,len(reachableSrcPorts_tcp)):
+                srcPort = reachableSrcPorts_tcp[i]
+                dstPort = reachableDstPorts_tcp[i]
+                tp_src=srcPort
+                tp_dst=dstPort
+                proto_ports=1
+                if hw_src==None and hw_dst==None and ip_src==None and ip_dst==None and port_check==0:
+                    print("SDN controller has a reactive approach and does not enforce any header fields between " + str(MY_IP) + " and " + str(tIP))
+                else:
+                    #forensic_switchport_prober.mapHosts()
+                    print([hw_src,hw_dst,ip_src,ip_dst,port_check,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,0,tcp,udp,"#OUT_PORT",tp_src,tp_dst,reachable])
 
-                        ruleconstructor.addRule(hw_src,hw_dst,ip_src,ip_dst,port_check,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,0,tcp,udp,"#OUT_PORT",tp_src,tp_dst,reachable)
-                        #if hw_src!=None or hw_dst!=None:
-                        #    ruleconstructor.addRuleARP(hw_src,hw_dst,port_check,"#OUT_PORT",reachable)
+                    ruleconstructor.addRule(hw_src,hw_dst,ip_src,ip_dst,port_check,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,0,tcp,0,"#OUT_PORT",tp_src,tp_dst,reachable)
+                    #if hw_src!=None or hw_dst!=None:
+                    #    ruleconstructor.addRuleARP(hw_src,hw_dst,port_check,"#OUT_PORT",reachable)
 
-                        rev_hw_src=None
-                        rev_hw_dst=None
-                        rev_ip_src=None
-                        rev_ip_dst=None
-                        rev_recv_srcIP=recv_srcIP
-                        rev_recv_dstIP=recv_dstIP
-                        rev_orig_srcIP=orig_srcIP
-                        rev_orig_dstIP=orig_dstIP
+                    rev_hw_src=None
+                    rev_hw_dst=None
+                    rev_ip_src=None
+                    rev_ip_dst=None
+                    rev_recv_srcIP=recv_srcIP
+                    rev_recv_dstIP=recv_dstIP
+                    rev_orig_srcIP=orig_srcIP
+                    rev_orig_dstIP=orig_dstIP
 
-                        #construct reverse rule
-                        if hw_src!=None:
-                            rev_hw_src=tMAC
+                    #construct reverse rule
+                    if hw_src!=None:
+                        rev_hw_src=tMAC
 
-                        if hw_dst!=None:
-                            rev_hw_dst=MY_MAC
+                    if hw_dst!=None:
+                        rev_hw_dst=MY_MAC
 
-                        if ip_src!=None:
-                            rev_ip_src=tIP
+                    if ip_src!=None:
+                        rev_ip_src=tIP
 
-                        if ip_dst!=None:
-                            rev_ip_dst=MY_IP
+                    if ip_dst!=None:
+                        rev_ip_dst=MY_IP
 
-                        if orig_srcIP!=recv_srcIP:
-                            rev_recv_srcIP=recv_dstIP
-                            rev_orig_srcIP=orig_dstIP
+                    if orig_srcIP!=recv_srcIP:
+                        rev_recv_srcIP=recv_dstIP
+                        rev_orig_srcIP=orig_dstIP
 
-                        if orig_dstIP!=recv_dstIP:
-                            rev_recv_dstIP=recv_srcIP
-                            rev_orig_dstIP=orig_srcIP
+                    if orig_dstIP!=recv_dstIP:
+                        rev_recv_dstIP=recv_srcIP
+                        rev_orig_dstIP=orig_srcIP
 
-                        ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,0,tcp,udp,"#OUT_PORT",tp_dst,tp_src,reachable)
+                    ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,0,tcp,0,"#OUT_PORT",tp_dst,tp_src,reachable)
+
+        if udp==1:
+            for i in range(0,len(reachableSrcPorts_udp)):
+                srcPort = reachableSrcPorts_udp[i]
+                dstPort = reachableDstPorts_udp[i]
+                tp_src=srcPort
+                tp_dst=dstPort
+                proto_ports=1
+                if hw_src==None and hw_dst==None and ip_src==None and ip_dst==None and port_check==0:
+                    print("SDN controller has a reactive approach and does not enforce any header fields between " + str(MY_IP) + " and " + str(tIP))
+                else:
+                    #forensic_switchport_prober.mapHosts()
+                    #print([hw_src,hw_dst,ip_src,ip_dst,port_check,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,0,tcp,udp,"#OUT_PORT",tp_src,tp_dst,reachable])
+
+                    ruleconstructor.addRule(hw_src,hw_dst,ip_src,ip_dst,port_check,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,0,0,udp,"#OUT_PORT",tp_src,tp_dst,reachable)
+                    #if hw_src!=None or hw_dst!=None:
+                    #    ruleconstructor.addRuleARP(hw_src,hw_dst,port_check,"#OUT_PORT",reachable)
+
+                    rev_hw_src=None
+                    rev_hw_dst=None
+                    rev_ip_src=None
+                    rev_ip_dst=None
+                    rev_recv_srcIP=recv_srcIP
+                    rev_recv_dstIP=recv_dstIP
+                    rev_orig_srcIP=orig_srcIP
+                    rev_orig_dstIP=orig_dstIP
+
+                    #construct reverse rule
+                    if hw_src!=None:
+                        rev_hw_src=tMAC
+
+                    if hw_dst!=None:
+                        rev_hw_dst=MY_MAC
+
+                    if ip_src!=None:
+                        rev_ip_src=tIP
+
+                    if ip_dst!=None:
+                        rev_ip_dst=MY_IP
+
+                    if orig_srcIP!=recv_srcIP:
+                        rev_recv_srcIP=recv_dstIP
+                        rev_orig_srcIP=orig_dstIP
+
+                    if orig_dstIP!=recv_dstIP:
+                        rev_recv_dstIP=recv_srcIP
+                        rev_orig_dstIP=orig_srcIP
+
+                    ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,0,0,udp,"#OUT_PORT",tp_dst,tp_src,reachable)
+
             tcp=0
             udp=0
 

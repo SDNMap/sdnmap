@@ -50,7 +50,34 @@ class forensic_port_prober(object):
                     reachableSrcPorts.append(srcPort)
                     reachableDstPorts.append(dstPort)
                 else:
-                    print("No Reply!")
+                    print("No reply received!")
+
+        for srcPort in probePorts:
+            for dstPort in probePorts:
+                ether = Ether(src=hw_src, dst=hw_dst)
+                ip_src = self.tools.getDiffIP(self.myip)
+                ip = IP(src=ip_src, dst=ip_dst)
+                tcp_syn=TCP(sport=srcPort, dport=dstPort, flags="S")
+
+                print("Probing " + str(ip_dst) + " - " + str(hw_dst) + " with spoofed IP source and TCP source port " + str(srcPort) + " and destination port " + str(dstPort))
+
+                tcp_pkt=ether/ip/tcp_syn
+                sendp(tcp_pkt, verbose=0)
+                time.sleep(responseTimeout)
+
+                if self.mem.getARPIPReq().has_key(ip_src):
+                    print("Received ARP request for " + str(ip_src))
+                    if srcPort not in reachableSrcPorts or dstPort not in reachableDstPorts:
+                        reachableSrcPorts.append(srcPort)
+                        reachableDstPorts.append(dstPort)
+                    self.mem.getARPIPReq().clear()
+                else:
+                    print("No reply received!")
+
+        for p in reachableSrcPorts:
+            print("TCP SrcPort " + str(p))
+        for p in reachableDstPorts:
+            print("TCP DstPort " + str(p))
 
         return [reachableSrcPorts,reachableDstPorts]
 
@@ -66,24 +93,15 @@ class forensic_port_prober(object):
         reachableSrcPorts=[]
         reachableDstPorts=[]
 
-        checkPorts={}
-        for port in probePorts:
-            ports=[]
-            pPort=int(port)+1
-            mPort=int(port)-1
-            ports.append(pPort)
-            ports.append(port)
-            ports.append(mPort)
-            checkPorts[port] = ports
-
+        del self.mem.getrecvICMP_PNR()[:]
         for srcPort in probePorts:
-            evalPorts=checkPorts[srcPort]
-            for dstPort in evalPorts:
+            for dstPort in probePorts:
                 ether = Ether(src=hw_src, dst=hw_dst)
                 ip = IP(src=ip_src, dst=ip_dst)
                 udp = UDP(sport=srcPort, dport=dstPort)
                 pkt = ether/ip/udp
                 sendp(pkt, verbose=0)
+                time.sleep(responseTimeout)
 
                 print("Probing " + str(ip_dst) + " - " + str(hw_dst) + " with UDP source port " + str(srcPort) + " and destination port " + str(dstPort))
 
@@ -91,8 +109,35 @@ class forensic_port_prober(object):
                     print("Replied at port " + str(dstPort) + "!")
                     reachableSrcPorts.append(srcPort)
                     reachableDstPorts.append(dstPort)
+                    del self.mem.getrecvICMP_PNR()[:]
                 else:
-                    print("No Reply!")
+                    print("No reply received!")
+
+        for srcPort in probePorts:
+            for dstPort in probePorts:
+                ether = Ether(src=hw_src, dst=hw_dst)
+                ip_src = self.tools.getDiffIP(self.myip)
+                ip = IP(src=ip_src, dst=ip_dst)
+                udp = UDP(sport=srcPort, dport=dstPort)
+                pkt = ether/ip/udp
+                sendp(pkt, verbose=0)
+                time.sleep(responseTimeout)
+
+                print("Probing " + str(ip_dst) + " - " + str(hw_dst) + " with spoofed IP source and UDP source port " + str(srcPort) + " and destination port " + str(dstPort))
+
+                if self.mem.getARPIPReq().has_key(ip_src):
+                    print("Received ARP request for " + str(ip_src))
+                    if srcPort not in reachableSrcPorts or dstPort not in reachableDstPorts:
+                        reachableSrcPorts.append(srcPort)
+                        reachableDstPorts.append(dstPort)
+                    self.mem.getARPIPReq().clear()
+                else:
+                    print("No reply received!")
+
+        for p in reachableSrcPorts:
+            print("UDP SrcPort " + str(p))
+        for p in reachableDstPorts:
+            print("UDP DstPort " + str(p))
 
         return [reachableSrcPorts,reachableDstPorts]
 
@@ -109,11 +154,11 @@ class forensic_port_prober(object):
         responseTimeout=2
 
         print("------- Test which TCP ports, using ports " + str(probePorts) + ", are checked --------")
-        reachableSrcPorts,reachableDstPorts=self.checkTCPPorts(probeIP,probeMAC,responseTimeout,probePorts)
+        reachableSrcPorts_tcp,reachableDstPorts_tcp=self.checkTCPPorts(probeIP,probeMAC,responseTimeout,probePorts)
         print("-------------------------------------------")
-        #print("------- Test which UDP ports are checked --------")
-        #reachableSrcPorts,reachableDstPorts=self.checkUDPPorts(probeIP,probeMAC,responseTimeout,probePorts)
-        #print("-------------------------------------------")
+        print("------- Test which UDP ports, using ports " + str(probePorts) + ", are checked --------")
+        reachableSrcPorts_udp,reachableDstPorts_udp=self.checkUDPPorts(probeIP,probeMAC,responseTimeout,probePorts)
+        print("-------------------------------------------")
 
 
-        return [reachableSrcPorts,reachableDstPorts]
+        return [reachableSrcPorts_tcp,reachableDstPorts_tcp,reachableSrcPorts_udp,reachableDstPorts_udp]
