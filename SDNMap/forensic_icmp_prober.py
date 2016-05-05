@@ -298,20 +298,86 @@ class forensic_icmp_prober(object):
         hw_src=self.mymac
         hw_dst=probeMAC
 
-        if srcMac==0:
-            hw_src=None
+        if routingOption1==0 and reactive==True:
+            #if srcMac==0 and dstMac==0 and srcIP==0 and dstIP==0:
+                #print("SDN controller does not enforce any L2 or L3 address fields on this path!")
 
-        if dstMac==0:
-            hw_dst=None
+            if srcMac==1 and dstMac==0 and srcIP==0 and dstIP==0:
+                hw_src=None
 
-        if srcIP==0:
-            ip_src=None
+            if srcMac==0 and dstMac==1 and srcIP==0 and dstIP==0:
+                hw_dst=None
 
-        if dstIP==0:
-            ip_dst=None
+            if srcMac==1 and dstMac==1 and srcIP==0 and dstIP==0:
+                hw_src=None
+                hw_dst=None
 
-        if srcMac==0 and dstMac==0 and srcIP==0 and dstIP==0:
-            print("SDN controller does not enforce any L2 or L3 address fields on this path!")
+            if srcMac==0 and dstMac==0 and srcIP==1 and dstIP==0:
+                ip_src=None
+
+            if srcMac==1 and dstMac==0 and srcIP==1 and dstIP==0:
+                hw_src=None
+                ip_src=None
+
+            if srcMac==0 and dstMac==1 and srcIP==1 and dstIP==0:
+                hw_dst=None
+                ip_src=None
+
+            if srcMac==1 and dstMac==1 and srcIP==1 and dstIP==0:
+                hw_src=None
+                hw_dst=None
+                ip_src=None
+
+            if srcMac==0 and dstMac==0 and srcIP==0 and dstIP==1:
+                ip_dst=None
+
+            if srcMac==1 and dstMac==0 and srcIP==0 and dstIP==1:
+                hw_src=None
+                ip_dst=None
+
+            if srcMac==0 and dstMac==1 and srcIP==0 and dstIP==1:
+                hw_dst=None
+                ip_dst=None
+
+            if srcMac==1 and dstMac==1 and srcIP==0 and dstIP==1:
+                hw_src=None
+                hw_dst=None
+                ip_dst=None
+
+            if srcMac==0 and dstMac==0 and srcIP==1 and dstIP==1:
+                ip_src=None
+                ip_dst=None
+
+            if srcMac==1 and dstMac==0 and srcIP==1 and dstIP==1:
+                hw_src=None
+                ip_src=None
+                ip_dst=None
+
+            if srcMac==0 and dstMac==1 and srcIP==1 and dstIP==1:
+                hw_dst=None
+                ip_src=None
+                ip_dst=None
+
+            if srcMac==1 and dstMac==1 and srcIP==1 and dstIP==1:
+                hw_src=None
+                hw_dst=None
+                ip_src=None
+                ip_dst=None
+        else:
+            if srcMac==0:
+                hw_src=None
+
+            if dstMac==0:
+                hw_dst=None
+
+            if srcIP==0:
+                ip_src=None
+
+            if dstIP==0:
+                ip_dst=None
+
+            #if srcMac==0 and dstMac==0 and srcIP==0 and dstIP==0:
+                #print("SDN controller does not enforce any L2 or L3 address fields on this path!")
 
         '''
         if routingOption1==1:

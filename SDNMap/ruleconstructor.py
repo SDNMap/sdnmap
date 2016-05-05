@@ -46,13 +46,8 @@ class ruleconstructor(object):
     def addRule(self,hw_src,hw_dst,ip_src,ip_dst,in_port,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,out_port,tp_src,tp_dst,reachable):
         #print(hw_src,hw_dst,ip_src,ip_dst,in_port,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,out_port,tp_src,tp_dst,reachable)
         rule="match="
-        if (ip_src!=None or ip_dst!=None) and ((tcp==0 and udp==0 and icmp==0) or (tcp==1 and udp==1 and icmp==1)):
+        if ((tcp==0 and udp==0 and icmp==0) or (tcp==1 and udp==1 and icmp==1)):
             rule=rule+"type:ip,"
-            rule=self.ruleMatch(rule,hw_src,hw_dst,ip_src,ip_dst,tp_src,tp_dst,in_port)
-            rule=self.ruleAction(rule,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP)
-
-        elif ip_src==None and ip_dst==None:
-            rule=""
             rule=self.ruleMatch(rule,hw_src,hw_dst,ip_src,ip_dst,tp_src,tp_dst,in_port)
             rule=self.ruleAction(rule,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP)
 

@@ -3,7 +3,6 @@ __author__ = 'mininet'
 
 import random
 import math
-from hostmap import hostmap
 from Node import Node
 from network import network
 from memory import memory
@@ -12,7 +11,6 @@ from network_map import network_map
 class tools(object):
 
     def __init__(self):
-        self.hostmap=hostmap()
         self.network=network()
         self.mem=memory()
 
@@ -125,40 +123,6 @@ class tools(object):
         ip = str(s1) + "." + str(s2) + "." + str(s3) + "." + str(s4)
         return ip
 
-    def encodeARPTable(self,myip):
-        self.hostmap.readARPtable(myip)
-        code=""
-        addsep="#"
-        newpair="%"
-        for node in self.hostmap.arpCache.get(myip):
-            code=code+newpair+str(self.encodeIP(node.ip))+addsep+str(self.encodeMAC(node.mac))
-        return code
-
-    def decodeARPTable(self,code,hostip):
-        nodes=[]
-        for pair in code.split("$")[0].split("%"):
-            if pair!="":
-                ip_int=pair.split("#")[0]
-                mac_int=pair.split("#")[1]
-                ip_addr=self.decodeIP(int(ip_int,10))
-                mac_addr=self.decodeMAC(int(mac_int,10))
-                nodes.append(Node(ip_addr,mac_addr,[]))
-        self.hostmap.arpCache[hostip]=nodes
-
-        print("ARP table received from " + hostip)
-        for node in nodes:
-            print("ip " + str(node.ip) + " mac " + str(node.mac))
-
-
-    def createICMPPayload(self,myip,padlen):
-        raw=self.encodeARPTable(myip)+"$"
-        i=1     #padlen=56
-        while len(raw) < padlen:
-            raw=raw+str(i)
-            i=i+1
-            if i==10:
-                i=1
-        return raw
 
     def decodeResponseAddresses(self,code):
         addr=code.split("#")
