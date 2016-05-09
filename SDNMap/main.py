@@ -286,8 +286,8 @@ if scansuccess==1:
                         rev_orig_srcIP=orig_dstIP
 
                     if orig_dstIP!=recv_dstIP:
-                        rev_recv_dstIP=recv_srcIP
-                        rev_orig_dstIP=orig_srcIP
+                        rev_recv_dstIP=MY_IP
+                        rev_orig_dstIP=recv_srcIP
 
                     ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,0,tcp,0,"#OUT_PORT",tp_dst,tp_src,reachable)
 
@@ -340,8 +340,8 @@ if scansuccess==1:
                         rev_orig_srcIP=orig_dstIP
 
                     if orig_dstIP!=recv_dstIP:
-                        rev_recv_dstIP=recv_srcIP
-                        rev_orig_dstIP=orig_srcIP
+                        rev_recv_dstIP=MY_IP
+                        rev_orig_dstIP=recv_srcIP
 
                     ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,0,0,udp,"#OUT_PORT",tp_dst,tp_src,reachable)
 
@@ -387,8 +387,8 @@ if scansuccess==1:
                     rev_orig_srcIP=orig_dstIP
 
                 if orig_dstIP!=recv_dstIP:
-                    rev_recv_dstIP=recv_srcIP
-                    rev_orig_dstIP=orig_srcIP
+                    rev_recv_dstIP=MY_IP
+                    rev_orig_dstIP=recv_srcIP
 
                 ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,icmp,0,0,"#OUT_PORT",None,None,reachable)
 
