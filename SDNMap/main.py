@@ -3,7 +3,6 @@ __author__ = 'mininet'
 from scapy.layers.dhcp import *
 from scapy.layers.dns import *
 from forensic_icmp_prober import forensic_icmp_prober
-from timing_prober import timing_prober
 from forensic_tcp_prober import forensic_tcp_prober
 from forensic_port_prober import forensic_port_prober
 from forensic_listener import forensic_listener
@@ -67,7 +66,7 @@ forensic_icmp_prober = forensic_icmp_prober(MY_IP, MY_MAC)
 forensic_tcp_prober = forensic_tcp_prober(MY_IP, MY_MAC)
 forensic_port_prober = forensic_port_prober(MY_IP, MY_MAC)
 reconstr_actions = reconstr_actions(MY_IP,MY_MAC)
-timing_prober = timing_prober(MY_IP,MY_MAC)
+#timing_prober = timing_prober(MY_IP,MY_MAC)
 forensic_protocol_prober = forensic_protocol_prober(MY_IP,MY_MAC)
 forensic_switchport_prober = forensic_switchport_prober(MY_IP,MY_MAC)
 map_net = map_net(MY_IP,MY_MAC,MY_MASK)
@@ -182,11 +181,11 @@ if scansuccess==1:
             [orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP]=reconstr_actions.reconstrAction(tIP,tMAC,scanPorts)
 
         if scan_pro=='ICMP':  #icmp==1:
-            print("--- Determine which L2/L3 fields are enforced using ICMP ---")
+            #print("--- Determine which L2/L3 fields are enforced using ICMP ---")
             [ip_src,ip_dst,hw_src,hw_dst,reachable,reactive]=forensic_icmp_prober.determineRouting(tIP, tMAC)
 
         elif scan_pro=='TCP': #tcp==1:
-            print("--- Determine which L2/L3 fields are enforced using TCP ---")
+            #print("--- Determine which L2/L3 fields are enforced using TCP ---")
             [ip_src,ip_dst,hw_src,hw_dst,reachable,reactive]=forensic_tcp_prober.determineTCPRouting(tIP, tMAC, srcPort, dstPort)
 
         results.append([hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP,reachableSrcPorts_tcp,reachableDstPorts_tcp,reachableSrcPorts_udp,reachableDstPorts_udp])

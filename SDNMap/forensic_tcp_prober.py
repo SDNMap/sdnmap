@@ -57,17 +57,19 @@ class forensic_tcp_prober(object):
 
         if len(probeTimes)!=0:
             routingOption1=1
+            print("Host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
 
             if probeTimes[0]>5:
                 reactiveTimeout=probeTimes[0]
             else:
                 reactiveTimeout=5
-            factor = probeTimes[0]/probeTimes[1]
-            if factor>10:
-                print("Probe response times indicate a reactive approach (delay difference factor " + str(int(factor)) + " > 10)")
-            else:
-                print("Proactive approach is assumed based on probing response times (difference factor " + str(int(factor)) + " < 10)")
+            #factor = probeTimes[0]/probeTimes[1]
+            #if factor>10:
+            #    print("Probe response times indicate a reactive approach (delay difference factor " + str(int(factor)) + " > 10)")
+            #else:
+            #    print("Proactive approach is assumed based on probing response times (difference factor " + str(int(factor)) + " < 10)")
         else:
+            print("Host at " + str(ip_dst) + " - " + str(hw_dst) + " is not reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
             reactiveTimeout=5
             routingOption1=0
 
@@ -93,11 +95,11 @@ class forensic_tcp_prober(object):
         time.sleep(reactiveTimeout)
 
         if self.mem.getSeenTCP_Pktsself().has_key(ip_src):
-            print("Reply to fake src addresses received, reactive approach assumed")
+            print("Reply to fake src addresses received, learning approach assumed")
             self.mem.getSeenTCP_Pktsself().clear()
             reactive=True
         else:
-            print("Proactive approach is assumed since no response for fake addresses received")
+            print("Static approach is assumed since no response for fake addresses received")
             eactive=False
 
         return reactive,routingOption1
@@ -261,7 +263,7 @@ class forensic_tcp_prober(object):
     def determineTCPRouting(self,probeIP,probeMAC,probeSrcPort,probeDstPort):
         responseTimeout=2
 
-        print("------- Check if SDN is reactive --------")
+        print("------- Check SDN approach --------")
         reactive,routingOption1=self.checkReActive(probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort)
         print("-------------------------------------------")
         #routingOption1 = self.checkReachability(probeIP,probeMAC,probePort)

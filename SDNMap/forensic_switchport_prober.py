@@ -81,6 +81,9 @@ class forensic_switchport_prober(object):
             print("Received ARP request for " + str(probeIP1) + " --> ingress port is not checked")
             return portCheck
 
+        if portCheck==1:
+            print("The performed probing tests suggest that flow rules are matching for a hosts ingress port")
+
         return portCheck
 
 
