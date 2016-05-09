@@ -160,6 +160,10 @@ if scansuccess==1:
         else:
             srcPort = random.randint(61000,65000)
             dstPort = random.randint(36000,37000)
+            reachableSrcPorts_udp.append(srcPort)
+            reachableDstPorts_udp.append(dstPort)
+            reachableSrcPorts_tcp.append(srcPort)
+            reachableDstPorts_tcp.append(dstPort)
 
         print("--- Determine enforced protocols ---")
         [tcp,icmp,udp] = forensic_protocol_prober.determineProtocol(tIP, tMAC, srcPort, dstPort)
@@ -389,7 +393,6 @@ if scansuccess==1:
                 ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,icmp,0,0,"#OUT_PORT",None,None,reachable)
 
 
-
         else:
             #forensic_switchport_prober.mapHosts()
             if hw_src==None and hw_dst==None and ip_src==None and ip_dst==None and port_check==0:
@@ -421,11 +424,11 @@ if scansuccess==1:
                     rev_ip_dst=MY_IP
 
                 if orig_srcIP!=recv_srcIP:
-                    rev_recv_srcIP=recv_dstIP
-                    rev_orig_srcIP=orig_dstIP
+                    rev_recv_srcIP=orig_dstIP
+                    rev_orig_srcIP=recv_dstIP
 
                 if orig_dstIP!=recv_dstIP:
-                    rev_recv_dstIP=recv_srcIP
+                    rev_recv_dstIP=MY_IP  #recv_srcIP
                     rev_orig_dstIP=orig_srcIP
 
                 ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,icmp,tcp,udp,"#OUT_PORT",None,None,reachable)
