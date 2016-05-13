@@ -105,12 +105,11 @@ Received ICMP Port Unreachable message
 IP addresses are not rewritten
 
 --- Determine which L2/L3 fields are enforced using TCP ---
-------- Check if SDN is reactive --------
+------- Check SDN approach --------
 Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.1 - 00:00:00:00:00:01 from port 80 to port 80
-Proactive approach is assumed based on probing response times (difference factor 1 < 10)
 Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.195 - 00:00:00:da:69:a0 from port 80 to port 80
 Spoof ARP cache at 10.0.0.2 from 10.0.0.195 to 00:00:00:00:00:01
-Proactive approach is assumed since no response for fake addresses received
+Static approach is assumed since no response for fake addresses received
 -------------------------------------------
 ------- Check if layer 3 routing is used --------
 Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.231 - 00:00:00:00:00:01 from port 80 to port 80
