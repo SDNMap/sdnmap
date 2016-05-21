@@ -104,15 +104,6 @@ Sending UDP packet to port 80 at 10.0.0.2 / 00:00:00:00:00:02
 Received ICMP Port Unreachable message
 IP addresses are not rewritten
 
---- Determine which L2/L3 fields are enforced using TCP ---
-------- Check SDN approach --------
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.1 - 00:00:00:00:00:01 from port 80 to port 80
-Host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.1 - 00:00:00:00:00:01
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.95 - 00:00:00:0a:89:6b from port 80 to port 80
-Spoof ARP cache at 10.0.0.2 from 10.0.0.95 to 00:00:00:00:00:01
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.95 - 00:00:00:0a:89:6b from port 80 to port 80
-Static approach is assumed since no response for fake addresses received
--------------------------------------------
 ------- Check if layer 3 routing is used --------
 Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.231 - 00:00:00:00:00:01 from port 80 to port 80
 ARP req for fake IP src received!
@@ -441,14 +432,6 @@ Sending UDP packet to port 36765 at 10.0.0.3 / 00:00:00:00:00:03
 Received ICMP Port Unreachable message
 IP addresses are not rewritten
 
-------- Check SDN approach --------
-Check if host at 10.0.0.3 - 00:00:00:00:00:03 is reachable with src addresses 10.0.0.1 - 00:00:00:00:00:01
-Host at 10.0.0.3 - 00:00:00:00:00:03 is reachable with src addresses 10.0.0.1 - 00:00:00:00:00:01
-Check if host at 10.0.0.3 - 00:00:00:00:00:03 is reachable with src addresses 10.0.0.136 - 00:00:00:0f:b7:5d
-Spoof ARP cache at 10.0.0.3 from 10.0.0.136 to 00:00:00:00:00:01
-Check if host at 10.0.0.3 - 00:00:00:00:00:03 is reachable with src addresses 10.0.0.136 - 00:00:00:0f:b7:5d
-Static approach is assumed since no response for fake addresses received
--------------------------------------------
 ------- Check if layer 3 routing is used --------
 Check if host at 10.0.0.3 - 00:00:00:00:00:03 is reachable with src addresses 10.0.0.203 - 00:00:00:00:00:01
 ARP req for fake IP src received!
@@ -490,14 +473,6 @@ Sending UDP packet to port 36012 at 10.0.0.2 / 00:00:00:00:00:02
 Received ICMP Port Unreachable message
 IP addresses are not rewritten
 
-------- Check SDN approach --------
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.1 - 00:00:00:00:00:01
-Host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.1 - 00:00:00:00:00:01
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.142 - 00:00:00:4c:17:0b
-Spoof ARP cache at 10.0.0.2 from 10.0.0.142 to 00:00:00:00:00:01
-Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.142 - 00:00:00:4c:17:0b
-Static approach is assumed since no response for fake addresses received
--------------------------------------------
 ------- Check if layer 3 routing is used --------
 Check if host at 10.0.0.2 - 00:00:00:00:00:02 is reachable with src addresses 10.0.0.39 - 00:00:00:00:00:01
 ARP req for fake IP src received!
@@ -527,4 +502,6 @@ match=type:ip,nw_dst:10.0.0.1 actions=output:#OUT_PORT
  -------------------------------------
 ```
 -------------------------------------------------------------
+
+In the shown example above, the rule "match=type:ip,nw_dst:10.0.0.1 actions=output:#OUT_PORT" is shown twice since they are the return rules from 10.0.0.2 and from 10.0.0.3
 

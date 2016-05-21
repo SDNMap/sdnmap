@@ -11,7 +11,7 @@ import time
 from Target import Target
 from network import network
 
-class forensic_icmp_prober(object):
+class forensic_tcp_prober(object):
 
     def __init__(self,ip,mac):
         self.myip=ip
@@ -22,10 +22,10 @@ class forensic_icmp_prober(object):
         self.recv_target=None
         self.sent_target=None
         self.network=network()
-        #print("ICMP Prober initialized at... " + str(self.myip) + " - " + str(self.mymac))
+        #print("TCP Prober initialized at... " + str(self.myip) + " - " + str(self.mymac))
 
     #determine of OF controller follows a reactive approach
-    def checkReActive(self,probeIP,probeMAC,responseTimeout):
+    def checkReActive(self,probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort):
         #use correct mac and IP
         hw_src = self.mymac
         hw_dst = probeMAC
@@ -33,20 +33,19 @@ class forensic_icmp_prober(object):
         ip_dst = probeIP
 
         reactive=False
-        routingOption1=0
 
         #send ping request
         ether = Ether(src=hw_src, dst=hw_dst)
         ip = IP(src=ip_src, dst=ip_dst)
-        icmp = ICMP(type = 8, code = 0)
+        tcp_syn=TCP(sport=probeSrcPort, dport=probeDstPort, flags="S")
 
-        icmp_pkt = ether/ip/icmp
+        tcp_pkt=ether/ip/tcp_syn
 
         count=0
         probeTimes=[]
-        #print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
+        #print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
         while count < 2:
-            ans,unans=srp(icmp_pkt, verbose=0, timeout=10)
+            ans,unans=srp(tcp_pkt, verbose=0, timeout=10)
             if len(ans)!=0:
                 rx = ans[0][1]
                 tx = ans[0][0]
@@ -74,90 +73,61 @@ class forensic_icmp_prober(object):
             reactiveTimeout=5
             routingOption1=0
 
+
         #use fake src mac and src IP addresses
         hw_src = self.tools.randMAC(self.mymac)
         hw_dst = probeMAC
         ip_src = self.tools.getDiffIP(self.myip)
         ip_dst = probeIP
+        #print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str( ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
 
-        #send ping request
+        #send TCP packet with SYN flag
         ether = Ether(src=hw_src, dst=hw_dst)
         ip = IP(src=ip_src, dst=ip_dst)
-        icmp = ICMP(type = 8, code = 0)
-        raw=self.tools.createTimeNonce(None,56)
-        nonce=int(str(raw).split("#")[1],10)
-        #nonce will be stored in memory if it was received
+        tcp_syn=TCP(sport=probeSrcPort, dport=probeDstPort, flags="S")
 
-        icmp_pkt = ether/ip/icmp/raw
-        #print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
-        sendp(icmp_pkt, verbose=0)
-        time.sleep(responseTimeout)
+        tcp_pkt=ether/ip/tcp_syn
+        sendp(tcp_pkt, verbose=0)
 
         #send ARP reply spoof message
-        arppkt = self.spoofARPInv(ip_src,self.mymac,hw_dst,ip_dst)
+        arppkt = self.spoofARP(ip_src,self.mymac,probeMAC,probeIP)
         sendp(arppkt, verbose=0)
         time.sleep(reactiveTimeout)
 
-        #send ping request
-        ether = Ether(src=hw_src, dst=hw_dst)
-        ip = IP(src=ip_src, dst=ip_dst)
-        icmp = ICMP(type = 8, code = 0)
-        raw=self.tools.createTimeNonce(None,56)
-        nonce=int(str(raw).split("#")[1],10)
-        #nonce will be stored in memory if it was received
-
-        icmp_pkt = ether/ip/icmp/raw
-        #print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
-        sendp(icmp_pkt, verbose=0)
-        time.sleep(responseTimeout)
-
-        if self.mem.getNonces().has_key(nonce):
-            #print("Reply to fake src addresses received, learning approach assumed!")
-            self.mem.getNonces().clear()
+        if self.mem.getSeenTCP_Pktsself().has_key(ip_src):
+            #print("Reply to fake src addresses received, learning approach assumed")
+            self.mem.getSeenTCP_Pktsself().clear()
             reactive=True
         else:
             #print("Static approach is assumed since no response for fake addresses received")
-            reactive=False
+            eactive=False
 
         return reactive,routingOption1
 
-    def checkReachability(self,probeIP,probeMAC,responseTimeout):
+    def checkReachability(self,probeIP,probeMAC,probeSrcPort,probeDstPort):
 
         #use correct mac and IP
         hw_src = self.mymac
         hw_dst = probeMAC
         ip_src = self.myip
         ip_dst = probeIP
-        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable from " + str(ip_src) + " - " + str(hw_src))
+        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str( ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
 
         #send ping request
         ether = Ether(src=hw_src, dst=hw_dst)
         ip = IP(src=ip_src, dst=ip_dst)
-        icmp = ICMP(type = 8, code = 0)
+        tcp_syn=TCP(sport=probeSrcPort, dport=probeDstPort, flags="S")
 
-        #raw=self.tools.createICMPPayload(self.myip,56)
-        raw=self.tools.createTimeNonce(None,56)
-        nonce=int(str(raw).split("#")[1],10)
-        #nonce will be stored in memory if it was received
+        tcp_pkt=ether/ip/tcp_syn
+        ack_pkt=srp1(tcp_pkt, verbose=0)
 
-        icmp_pkt = ether/ip/icmp/raw
-
-        #include raw payload with encoded arp table
-
-        #print("Send icmp packet to " + str(ip_dst) + " to check reachability")
-        print("Sent nonce " + str(nonce))
-        sendp(icmp_pkt, verbose=0)
-        time.sleep(responseTimeout)
-
-        if self.mem.getNonces().has_key(nonce):
-            self.recv_target = self.mem.getNonces().get(nonce)
-            self.sent_target = Target(nonce,ip_src,hw_src,ip_dst,hw_dst)
-            #print(hw_src + "/" + target.src_mac + " - " + hw_dst + "/" + target.dst_mac + " - " + ip_src + "/" + target.src_ip + " - " + ip_dst + "/" + target.dst_ip)
+        if ack_pkt!=None:
             print("Host is reachable!")
             routingOption=1
-            self.mem.getNonces().clear()
         else:
             routingOption=0
+
+        self.mem.getSeenTCP_Pktsself().clear()
         return routingOption
 
     def spoofARP(self,spoofIP,spoofMAC,dstMAC,dstIP):
@@ -167,139 +137,141 @@ class forensic_icmp_prober(object):
         arppkt = ether1/arp1
         return arppkt
 
-    def spoofARPInv(self,spoofIP,spoofMAC,dstMAC,dstIP):
-        #print("Spoof ARP cache at " + str(dstIP) + " from " + str(spoofIP) + " to " + str(spoofMAC))
-        ether1 = Ether(src=self.mymac, dst=dstMAC)
-        arp1 = ARP(op="is-at", hwsrc=spoofMAC, hwdst=dstMAC, psrc=spoofIP, pdst=dstIP)
-        arppkt = ether1/arp1
-        return arppkt
-
-    def checkL3RoutingSrcDst(self,probeIP,probeMAC,responseTimeout):
+    def checkL3RoutingSrcDst(self,probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort):
         #use correct MAC but wrong src IP
         hw_src = self.mymac
         hw_dst = probeMAC
         ip_src = self.tools.getDiffIP(self.myip)
         ip_dst = probeIP
-        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
+        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str( ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
 
         #send ping request
         ether = Ether(src=hw_src, dst=hw_dst)
         ip = IP(src=ip_src, dst=ip_dst)
-        icmp = ICMP(type = 8, code = 0)
+        tcp_syn=TCP(sport=probeSrcPort, dport=probeDstPort, flags="S")
 
-        raw=self.tools.createTimeNonce(None,56)
-        nonce=int(str(raw).split("#")[1],10)
-        #nonce will be stored in memory if it was received
-
-        icmp_pkt = ether/ip/icmp/raw
-        sendp(icmp_pkt, verbose=0)
+        tcp_pkt=ether/ip/tcp_syn
+        sendp(tcp_pkt, verbose=0)
         time.sleep(responseTimeout)
 
         srcIP=1
         dstIP=1
 
+        if self.mem.getSeenTCP_Pktsself().has_key(ip_src):
+            print("Response to fake IP src received!")
+            srcIP=0
+            self.mem.getSeenTCP_Pktsself().clear()
+
         if self.mem.getARPIPReq().has_key(ip_src):
             print("ARP req for fake IP src received!")
             srcIP=0
+            self.mem.getSeenTCP_Pktsself().clear()
 
         #spoof arp entry
         arppkt = self.spoofARP(ip_src,hw_src,probeMAC,probeIP)
         sendp(arppkt, verbose=0)
+        #print("Spoof ARP cache")
         time.sleep(responseTimeout)
 
         #send ping request
         ether = Ether(src=hw_src, dst=hw_dst)
         ip = IP(src=ip_src, dst=ip_dst)
-        icmp = ICMP(type = 8, code = 0)
+        tcp_syn=TCP(sport=probeSrcPort, dport=probeDstPort, flags="S")
 
-        raw=self.tools.createTimeNonce(None,56)
-        nonce=int(str(raw).split("#")[1],10)
-        #nonce will be stored in memory if it was received
+        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable from " + str( ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
 
-        icmp_pkt = ether/ip/icmp/raw
-        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
-        sendp(icmp_pkt, verbose=0)
+        tcp_pkt=ether/ip/tcp_syn
+        sendp(tcp_pkt, verbose=0)
         time.sleep(responseTimeout)
 
-        if self.mem.getNonces().has_key(nonce):
+        if self.mem.getSeenTCP_Pktsself().has_key(ip_src):
             print("Response to fake IP src and dst received!")
             dstIP=0
-            self.mem.getNonces().clear()
+            self.mem.getSeenTCP_Pktsself().clear()
 
+        self.mem.getSeenTCP_Pktsself().clear()
         return [srcIP,dstIP]
 
-    def checkL2RoutingSrcDst(self,probeIP,probeMAC,responseTimeout):
+    def checkL2RoutingSrcDst(self,probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort):
         #use correct IP but wrong MAC
         hw_src = self.tools.randMAC(self.mymac)
         hw_dst = probeMAC
         ip_src = self.myip
         ip_dst = probeIP
+        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
 
         #send ping request
         ether = Ether(src=hw_src, dst=hw_dst)
         ip = IP(src=ip_src, dst=ip_dst)
-        icmp = ICMP(type = 8, code = 0)
+        tcp_syn=TCP(sport=probeSrcPort, dport=probeDstPort, flags="S")
 
-        raw=self.tools.createTimeNonce(None,56)
-        nonce=int(str(raw).split("#")[1],10)
-        #nonce will be stored in memory if it was received
-
-        icmp_pkt = ether/ip/icmp/raw
-        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
-        sendp(icmp_pkt, verbose=0)
+        tcp_pkt=ether/ip/tcp_syn
+        sendp(tcp_pkt, verbose=0)
         time.sleep(responseTimeout)
 
         srcMac=1
         dstMac=1
 
-        if self.mem.getNonces().has_key(nonce):
+        if self.mem.getSeenTCP_Pktsself().has_key(ip_src):
             print("Response to fake src MAC received!")
+            self.mem.getSeenTCP_Pktsself().clear()
             srcMac=0
-            self.mem.getNonces().clear()
 
         #spoof arp entry of us on target host
         arppkt = self.spoofARP(self.myip,hw_src,probeMAC,probeIP)
         sendp(arppkt, verbose=0)
-        time.sleep(responseTimeout)
+        #print("Spoof ARP cache")
+        time.sleep(1)
 
         #send ping packet again with correct MAC src address and see if response comes back
         hw_src = self.mymac
         ether = Ether(src=hw_src, dst=hw_dst)
 
-        raw=self.tools.createTimeNonce(None,56)
-        nonce=int(str(raw).split("#")[1],10)
-        #nonce will be stored in memory if it was received
-
-        icmp_pkt = ether/ip/icmp/raw
-
-        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
-        sendp(icmp_pkt, verbose=0)
+        tcp_pkt=ether/ip/tcp_syn
+        sendp(tcp_pkt, verbose=0)
+        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable from " + str( ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
         time.sleep(responseTimeout)
 
-        if self.mem.getNonces().has_key(nonce):
+        if self.mem.getSeenTCP_Pktsself().has_key(ip_src):
             print("Response to fake src and dst MAC received!")
+            self.mem.getSeenTCP_Pktsself().clear()
             dstMac=0
-            self.mem.getNonces().clear()
 
         #restore our arp entry
         arppkt = self.spoofARP(self.myip,self.mymac,probeMAC,probeIP)
         sendp(arppkt, verbose=0)
-        self.mem.getNonces().clear()
+        self.mem.getSeenTCP_Pktsself().clear()
+
         return [srcMac,dstMac]
 
+    def determineTCPProtocol(self,probeIP,probeMAC,responseTimeout):
+        hw_src = self.mymac
+        hw_dst = probeMAC
+        ip_src = self.myip
+        ip_dst = probeIP
 
-    def determineRouting(self,probeIP,probeMAC):
+        ether = Ether(src=hw_src, dst=hw_dst)
+        ip = IP(src=ip_src, dst=ip_dst)
+        tcp_syn=TCP(sport=1500, dport=80, flags="S")
+        tcp_pkt=ether/ip/tcp_syn
+
+        tcp_pkt.show2()
+        ack_pkt=srp1(tcp_pkt, verbose=0)
+        ack_pkt.show2()
+
+
+    def determineTCPRouting(self,probeIP,probeMAC,probeSrcPort,probeDstPort):
         responseTimeout=2
 
         #print("------- Check SDN approach --------")
-        reactive,routingOption1=self.checkReActive(probeIP,probeMAC,responseTimeout)
+        reactive,routingOption1=self.checkReActive(probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort)
         #print("-------------------------------------------")
         #routingOption1 = self.checkReachability(probeIP,probeMAC,probePort)
         print("------- Check if layer 3 routing is used --------")
-        [srcIP,dstIP] = self.checkL3RoutingSrcDst(probeIP,probeMAC,responseTimeout)
+        [srcIP,dstIP] = self.checkL3RoutingSrcDst(probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort)
         print("-------------------------------------------")
         print("------- Check if layer 2 routing is used --------")
-        [srcMac,dstMac] = self.checkL2RoutingSrcDst(probeIP,probeMAC,responseTimeout)
+        [srcMac,dstMac] = self.checkL2RoutingSrcDst(probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort)
         print("-------------------------------------------")
 
         ip_src=self.myip
@@ -390,7 +362,7 @@ class forensic_icmp_prober(object):
 
         '''
         if routingOption1==1:
-            print(self.ruleconstructor.ruleMatch("",hw_src,hw_dst,ip_src,ip_dst,None))
+            self.ruleconstructor.createMatchRule(hw_src,hw_dst,ip_src,ip_dst,None)
         else:
             print("Destination not reachable!")
         '''

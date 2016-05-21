@@ -43,7 +43,7 @@ class forensic_tcp_prober(object):
 
         count=0
         probeTimes=[]
-        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
+        #print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
         while count < 2:
             ans,unans=srp(tcp_pkt, verbose=0, timeout=10)
             if len(ans)!=0:
@@ -57,7 +57,7 @@ class forensic_tcp_prober(object):
 
         if len(probeTimes)!=0:
             routingOption1=1
-            print("Host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
+            #print("Host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
 
             if probeTimes[0]>5:
                 reactiveTimeout=probeTimes[0]
@@ -69,7 +69,7 @@ class forensic_tcp_prober(object):
             #else:
             #    print("Proactive approach is assumed based on probing response times (difference factor " + str(int(factor)) + " < 10)")
         else:
-            print("Host at " + str(ip_dst) + " - " + str(hw_dst) + " is not reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
+            #print("Host at " + str(ip_dst) + " - " + str(hw_dst) + " is not reachable with src addresses " + str(ip_src) + " - " + str(hw_src))
             reactiveTimeout=5
             routingOption1=0
 
@@ -79,7 +79,7 @@ class forensic_tcp_prober(object):
         hw_dst = probeMAC
         ip_src = self.tools.getDiffIP(self.myip)
         ip_dst = probeIP
-        print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str( ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
+        #print("Check if host at " + str(ip_dst) + " - " + str(hw_dst) + " is reachable with src addresses " + str( ip_src) + " - " + str(hw_src) + " from port " + str(probeSrcPort) + " to port " + str(probeDstPort))
 
         #send TCP packet with SYN flag
         ether = Ether(src=hw_src, dst=hw_dst)
@@ -90,16 +90,16 @@ class forensic_tcp_prober(object):
         sendp(tcp_pkt, verbose=0)
 
         #send ARP reply spoof message
-        arppkt = self.spoofARP(ip_src,self.mymac,probeMAC,probeIP)
+        arppkt = self.spoofARPInv(ip_src,self.mymac,probeMAC,probeIP)
         sendp(arppkt, verbose=0)
         time.sleep(reactiveTimeout)
 
         if self.mem.getSeenTCP_Pktsself().has_key(ip_src):
-            print("Reply to fake src addresses received, learning approach assumed")
+            #print("Reply to fake src addresses received, learning approach assumed")
             self.mem.getSeenTCP_Pktsself().clear()
             reactive=True
         else:
-            print("Static approach is assumed since no response for fake addresses received")
+            #print("Static approach is assumed since no response for fake addresses received")
             eactive=False
 
         return reactive,routingOption1
@@ -132,6 +132,13 @@ class forensic_tcp_prober(object):
 
     def spoofARP(self,spoofIP,spoofMAC,dstMAC,dstIP):
         print("Spoof ARP cache at " + str(dstIP) + " from " + str(spoofIP) + " to " + str(spoofMAC))
+        ether1 = Ether(src=self.mymac, dst=dstMAC)
+        arp1 = ARP(op="is-at", hwsrc=spoofMAC, hwdst=dstMAC, psrc=spoofIP, pdst=dstIP)
+        arppkt = ether1/arp1
+        return arppkt
+
+    def spoofARPInv(self,spoofIP,spoofMAC,dstMAC,dstIP):
+        #print("Spoof ARP cache at " + str(dstIP) + " from " + str(spoofIP) + " to " + str(spoofMAC))
         ether1 = Ether(src=self.mymac, dst=dstMAC)
         arp1 = ARP(op="is-at", hwsrc=spoofMAC, hwdst=dstMAC, psrc=spoofIP, pdst=dstIP)
         arppkt = ether1/arp1
@@ -263,9 +270,9 @@ class forensic_tcp_prober(object):
     def determineTCPRouting(self,probeIP,probeMAC,probeSrcPort,probeDstPort):
         responseTimeout=2
 
-        print("------- Check SDN approach --------")
+        #print("------- Check SDN approach --------")
         reactive,routingOption1=self.checkReActive(probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort)
-        print("-------------------------------------------")
+        #print("-------------------------------------------")
         #routingOption1 = self.checkReachability(probeIP,probeMAC,probePort)
         print("------- Check if layer 3 routing is used --------")
         [srcIP,dstIP] = self.checkL3RoutingSrcDst(probeIP,probeMAC,responseTimeout,probeSrcPort,probeDstPort)
