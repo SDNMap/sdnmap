@@ -143,7 +143,6 @@ class forensic_icmp_prober(object):
         icmp_pkt = ether/ip/icmp/raw
 
         #include raw payload with encoded arp table
-
         #print("Send icmp packet to " + str(ip_dst) + " to check reachability")
         print("Sent nonce " + str(nonce))
         sendp(icmp_pkt, verbose=0)
