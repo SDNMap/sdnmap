@@ -22,9 +22,6 @@ class network(object):
         self.nodesF[5] = Node("10.0.0.5","00:00:00:00:00:05",[])
         self.nodesF[6] = Node("10.0.0.6","00:00:00:00:00:06",[])
 
-
-
-
     def readARPtable(self,myip):
         nodes=[]
         output = subprocess.Popen(["arp", "-n"],stdout=subprocess.PIPE)
