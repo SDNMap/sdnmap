@@ -9,6 +9,7 @@ No prior knowledge of the SDN controller or network is required.
 
 SDNMap is an open-source software and can be used under the terms of the Creative Commons (CC0) license.
 For details about the functionality of SDNMap we refer to the research paper "Adversarial Network Forensics in Software Defined Networking" (currently under review).
+
 Please contact us with any questions at: sdnmap@gmail.com
 
 ----------------------------------------
