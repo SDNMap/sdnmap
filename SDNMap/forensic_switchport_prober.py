@@ -87,7 +87,6 @@ class forensic_switchport_prober(object):
         return portCheck
 
 
-
     def spoofARP(self,spoofIP,spoofMAC,dstMAC,dstIP):
         print("Spoof ARP cache at " + str(dstIP) + " from " + str(spoofIP) + " to " + str(spoofMAC))
         ether1 = Ether(src=spoofMAC, dst=dstMAC)
