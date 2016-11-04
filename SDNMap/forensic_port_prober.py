@@ -52,7 +52,6 @@ class forensic_port_prober(object):
                 else:
                     print("No reply received!")
 
-
         for srcPort in probePorts:
             for dstPort in probePorts:
                 ether = Ether(src=hw_src, dst=hw_dst)
