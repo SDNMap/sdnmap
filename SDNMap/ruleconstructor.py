@@ -89,7 +89,6 @@ class ruleconstructor(object):
             self.rules.append(rule)
 
 
-
     def ruleMatch(self,rule,hw_src,hw_dst,ip_src,ip_dst,tp_src,tp_dst,in_port):
         if in_port==1:
             rule=rule+"in_port:#IN_PORT,"
