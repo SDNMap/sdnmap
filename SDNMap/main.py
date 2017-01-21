@@ -1,4 +1,4 @@
-__author__ = 'mininet'
+__author__ = 'Stefan'
 
 
 from scapy.layers.dhcp import *
@@ -392,6 +392,41 @@ if scansuccess==1:
                     rev_orig_dstIP=recv_srcIP
 
                 ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,icmp,0,0,"#OUT_PORT",None,None,reachable)
+
+	if tcp!=1 and udp!=1 and icmp!=1:
+		ruleconstructor.addRule(hw_src,hw_dst,ip_src,ip_dst,port_check,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,0,0,0,"#OUT_PORT",None,None,0)
+
+                rev_hw_src=None
+                rev_hw_dst=None
+                rev_ip_src=None
+                rev_ip_dst=None
+                rev_recv_srcIP=recv_srcIP
+                rev_recv_dstIP=recv_dstIP
+                rev_orig_srcIP=orig_srcIP
+                rev_orig_dstIP=orig_dstIP
+
+                #construct reverse rule
+                if hw_src!=None:
+                    rev_hw_src=tMAC
+
+                if hw_dst!=None:
+                    rev_hw_dst=MY_MAC
+
+                if ip_src!=None:
+                    rev_ip_src=tIP
+
+                if ip_dst!=None:
+                    rev_ip_dst=MY_IP
+
+                if orig_srcIP!=recv_srcIP:
+                    rev_recv_srcIP=recv_dstIP
+                    rev_orig_srcIP=orig_dstIP
+
+                if orig_dstIP!=recv_dstIP:
+                    rev_recv_dstIP=MY_IP
+                    rev_orig_dstIP=recv_srcIP
+
+                ruleconstructor.addRule(rev_hw_src,rev_hw_dst,rev_ip_src,rev_ip_dst,port_check,rev_orig_srcIP,rev_recv_srcIP,rev_orig_dstIP,rev_recv_dstIP,0,0,0,"#OUT_PORT",None,None,0)
 
 
         else:
