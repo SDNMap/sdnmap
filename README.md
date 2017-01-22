@@ -10,7 +10,12 @@ No prior knowledge of the SDN controller or network is required.
 SDNMap is an open-source software and can be used under the terms of the Creative Commons (CC0) license.
 For details about the functionality of SDNMap we refer to the research paper "Adversarial Network Forensics in Software Defined Networking" (currently under review).
 
-Please contact us with any questions at: sdnmap@gmail.com
+Please keep in mind that SDNMap is a research protoype. We appreciate all suggestions to improve it.
+Contact us with any questions, bugs, etc. at: sdnmap@gmail.com
+
+We made two videos to demonstrate SDNMap:
+- Reconstruct Floodlight's Access Control List with SDNMap: https://youtu.be/rTMYvoRFc0U
+- Reconstruct Floodlight's Load Balancing as a Service application with SDNMap: https://youtu.be/9v7mjMrkxHk
 
 ----------------------------------------
 ### Scanning hosts with SDNMap
