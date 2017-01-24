@@ -1,3 +1,7 @@
+# SDNMap - Paper #
+
+We will present SDNMap at the Symposium of SDN Research in Santa Clara, CA in April - http://conferences.sigcomm.org/sosr/2017/
+
 # SDNMap #
 
 Please make sure that you have Python, Scapy 2.2, installed on your Linux system since these are required to run SDNMap.
