@@ -114,8 +114,6 @@ class ruleconstructor(object):
         return rule[:-1]
 
 
-        return rule[:-1]
-
     def ruleAction(self,rule,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP):
         rule=rule+" actions="
 
