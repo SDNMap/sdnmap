@@ -1,8 +1,13 @@
 # SDNMap - Paper #
 
-We will present SDNMap at the Symposium of SDN Research in Santa Clara, CA in April - http://conferences.sigcomm.org/sosr/2017/
+We are glad to announce that our SDNMap paper "Adversarial Network Forensics in Software Defined Networking" won the Best Student Paper Award at the ACM Symposium of SDN Research @ Open Network Summit 2017.
+
+http://conferences.sigcomm.org/sosr/2017/
 
 # SDNMap #
+
+Please keep in mind that SDNMap is a research protoype. We appreciate all suggestions to improve it.
+Contact us with any questions, bugs, etc. at: sdnmap@gmail.com
 
 Please make sure that you have Python, Scapy 2.2, installed on your Linux system since these are required to run SDNMap.
 
@@ -12,10 +17,7 @@ SDNMap is a scanning tool to reconstruct the composition of OpenFlow rules in SD
 No prior knowledge of the SDN controller or network is required. 
 
 SDNMap is an open-source software and can be used under the terms of the Creative Commons (CC0) license.
-For details about the functionality of SDNMap we refer to the research paper "Adversarial Network Forensics in Software Defined Networking" (currently under review).
-
-Please keep in mind that SDNMap is a research protoype. We appreciate all suggestions to improve it.
-Contact us with any questions, bugs, etc. at: sdnmap@gmail.com
+For details about the functionality of SDNMap we refer to the research paper "Adversarial Network Forensics in Software Defined Networking".
 
 We made two videos to demonstrate SDNMap:
 - Reconstruct Floodlight's Access Control List with SDNMap: https://youtu.be/rTMYvoRFc0U
