@@ -172,11 +172,11 @@ if scansuccess==1:
         routing=0
         actions=0
 
-        if scan_pro=='ICMP' and icmp==0 and tcp==1:
+        if icmp==0:
             print("User selected ICMP as scanning protocol, which is not allowed, therefore switching to TCP\n")
             scan_pro='TCP'
 
-        if scan_pro=='TCP' and icmp==1 and tcp==0:
+        if tcp==0:
             print("User selected TCP as scanning protocol, which is not allowed, therefore switching to ICMP\n")
             scan_pro='ICMP'
 
@@ -185,12 +185,12 @@ if scansuccess==1:
             print("--- Determine if IP addresses are rewritten ---")
             [orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP]=reconstr_actions.reconstrAction(tIP,tMAC,scanPorts)
 
-        if scan_pro=='ICMP':  #icmp==1:
-            #print("--- Determine which L2/L3 fields are enforced using ICMP ---")
+        if 'ICMP' in scan_pro:  #icmp==1:
+            print("--- Determine which L2/L3 fields are enforced using ICMP ---")
             [ip_src,ip_dst,hw_src,hw_dst,reachable,reactive]=forensic_icmp_prober.determineRouting(tIP, tMAC)
 
-        elif scan_pro=='TCP': #tcp==1:
-            #print("--- Determine which L2/L3 fields are enforced using TCP ---")
+        elif 'TCP' in scan_pro: #tcp==1:
+            print("--- Determine which L2/L3 fields are enforced using TCP ---")
             [ip_src,ip_dst,hw_src,hw_dst,reachable,reactive]=forensic_tcp_prober.determineTCPRouting(tIP, tMAC, srcPort, dstPort)
 
         results.append([hw_src,hw_dst,ip_src,ip_dst,orig_srcIP,recv_srcIP,orig_dstIP,recv_dstIP,icmp,tcp,udp,reachable,reactive,tMAC,tIP,reachableSrcPorts_tcp,reachableDstPorts_tcp,reachableSrcPorts_udp,reachableDstPorts_udp])
